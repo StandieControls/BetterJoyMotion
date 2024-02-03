@@ -2,12 +2,19 @@
   <img src="title.png">
 </p>
 
-# BetterJoy v7.0
-Allows the Nintendo Switch Pro Controller, Joycons, and Switch SNES controller to be used with [Cemu](http://cemu.info/) using [Cemuhook](https://sshnuke.net/cemuhook/), [Citra](https://citra-emu.org/), [Dolphin](https://dolphin-emu.org/), [Yuzu](https://yuzu-emu.org/), and system-wide with generic XInput support.
+# BetterJoy: Motion Control Edition
+Uses the BetterJoy framework to use Joy-Cons for motion control inputs in any game that accepts an Xbox 360 controller. Your Joy-Con pair will work as an Xbox 360 controller, with the addition of being able to press buttons by moving the Joy-Cons.
 
-It also allows using the gyro to control your mouse and remap the special buttons (SL, SR, Capture) to key bindings of your choice.
+Features:
 
-If anyone would like to donate (for whatever reason), [you can do so here](https://www.paypal.me/DavidKhachaturov/5). 
+* Use slashing or punching motions to activate buttons
+* Set different buttons to left and right Joy-Con motions
+* Use horizontal slashes to trigger the light attack button and use vertical slashes to trigger the heavy attack button
+* Map the SL and SR buttons to motion functions or buttons
+
+This adaption of BetterJoy is entirely focused on motion controls with Joy-Cons. Other features that are not related to using Joy-Cons as an Xbox 360 controller may have been broken and other controllers are not supported/tested.
+
+If anyone would like to donate to the creator of BetterJoy, [you can do so here](https://www.paypal.me/DavidKhachaturov/5). 
 
 #### Personal note
 Thank you for using my software and all the constructive feedback I've been getting about it. I started writing this project a while back and have since then learnt a lot more about programming and software development in general. I don't have too much time to work on this project, but I will try to fix bugs when and if they arise. Thank you for your patience in that regard too!
