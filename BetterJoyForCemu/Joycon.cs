@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -95,6 +95,32 @@ namespace BetterJoyForCemu {
 
         private float[] stick = { 0, 0 };
         private float[] stick2 = { 0, 0 };
+
+        // Configuration class for Shake Detection
+        public class ShakeConfig {
+            public float AccelShakeSensitivityX;
+            public float AccelShakeSensitivityY;
+            public float AccelShakeSensitivityZ;
+            public float GyroShakeSensitivityX; // Roll
+            public float GyroShakeSensitivityY; // Vertical shake
+            public float GyroShakeSensitivityZ; // Horizontal shake
+            public long ShakeDelay;
+            public Button SimulatedButton; // The button to simulate when a shake is detected
+
+            // Constructor
+            public ShakeConfig(float accelX, float accelY, float accelZ, float gyroX, float gyroY, float gyroZ, long delay, Button button) {
+                AccelShakeSensitivityX = accelX;
+                AccelShakeSensitivityY = accelY;
+                AccelShakeSensitivityZ = accelZ;
+                GyroShakeSensitivityX = gyroX;
+                GyroShakeSensitivityY = gyroY;
+                GyroShakeSensitivityZ = gyroZ;
+                ShakeDelay = delay;
+                SimulatedButton = button;
+            }
+        }
+
+        public static Dictionary<int, ShakeConfig> ShakeConfigs = new Dictionary<int, ShakeConfig>();
 
         private IntPtr handle;
 
@@ -318,6 +344,26 @@ namespace BetterJoyForCemu {
             }
         }
 
+        bool IsButtonPressed(Button button) {
+            return buttons[(int)button];
+        }
+
+        enum State {
+            OFF = 0,
+            ON = 1
+        }
+        enum ButtonFunctionality {
+            OFF,
+            SL, //Represents SL left joy-con: buttons[(int)Button.SL]
+            SR, // Represents SL left joy-con: buttons[(int)Button.SL]
+            SLO, // Represents SL right joy-con: other.buttons[(int)Button.SL]
+            SRO  // Represents SR right joy-con: other.buttons[(int)Button.SR]
+        }
+        enum Mutate {
+            OFF,
+            SL,
+            SR
+        }
         public void getActiveData() {
             this.activeData = form.activeCaliData(serial_number);
         }
@@ -600,37 +646,164 @@ namespace BetterJoyForCemu {
             return ret;
         }
 
-        private readonly Stopwatch shakeTimer = Stopwatch.StartNew(); //Setup a timer for measuring shake in milliseconds
+        private readonly Stopwatch shakeTimer = Stopwatch.StartNew();
         private long shakedTime = 0;
         private bool hasShaked;
-        void DetectShake() {
-            if (form.shakeInputEnabled) {
-                long currentShakeTime = shakeTimer.ElapsedMilliseconds;
 
-                // Shake detection logic
-                bool isShaking = GetAccel().LengthSquared() >= form.shakeSesitivity;
-                if (isShaking && currentShakeTime >= shakedTime + form.shakeDelay || isShaking && shakedTime == 0) {
-                    shakedTime = currentShakeTime;
-                    hasShaked = true;
+        // Define a struct for mapping sensitivity to buttons for each axis and overall shakes
+        struct MotionMapping {
+            public float Sensitivity;
+            public Button Button;
+            public State State;
+            public Mutate MutateState;
+            public Button MutateButton; // The button to press when the mutate condition is met
+            public float MutateSensitivity; // New field for mutator sensitivity threshold
 
-                    // Mapped shake key down
-                    Simulate(Config.Value("shake"), false, false);
-                    DebugPrint("Shaked at time: " + shakedTime.ToString(), DebugType.SHAKE);
-                }
-
-                // If controller was shaked then release mapped key after a small delay to simulate a button press, then reset hasShaked
-                if (hasShaked && currentShakeTime >= shakedTime + 10) {
-                    // Mapped shake key up
-                    Simulate(Config.Value("shake"), false, true);
-                    DebugPrint("Shake completed", DebugType.SHAKE);
-                    hasShaked = false;
-                }
-
-            } else {
-                shakeTimer.Stop();
-                return;
+            public MotionMapping(float sensitivity, Button button, State state, Mutate mutateState, Button mutateButton, float mutateSensitivity) {
+                Sensitivity = sensitivity;
+                Button = button;
+                State = state;
+                MutateState = mutateState;
+                MutateButton = mutateButton;
+                MutateSensitivity = mutateSensitivity; // Initialize the new field
             }
         }
+
+        void ProcessShakeDetection(MotionMapping mapping, float axisValue, long currentShakeTime) {
+            // Determine the sensitivity to use (mutator or regular)
+            float sensitivityThreshold = mapping.Sensitivity;
+            if (mapping.MutateState != Mutate.OFF && IsMutateButtonPressed(mapping.MutateState)) {
+                sensitivityThreshold = mapping.MutateSensitivity;
+            }
+
+            bool isShaking = Math.Pow(axisValue, 2) >= Math.Pow(sensitivityThreshold, 2);
+            if (isShaking && (currentShakeTime >= shakedTime || shakedTime == 0)) {
+                Button buttonToPress = mapping.Button; // Default button to press
+                if (mapping.MutateState != Mutate.OFF && IsMutateButtonPressed(mapping.MutateState)) {
+                    buttonToPress = mapping.MutateButton; // Change to mutate button if condition is met
+                }
+
+                shakedTime = currentShakeTime;
+                hasShaked = true;
+                buttons[(int)buttonToPress] = true; // Simulate button press based on mutate condition
+            } else if (!isShaking && hasShaked && currentShakeTime >= shakedTime + 0) {
+                buttons[(int)mapping.Button] = false; // Always release the regular button
+                if (mapping.MutateState != Mutate.OFF) {
+                    buttons[(int)mapping.MutateButton] = false; // Release the mutate button if it was pressed
+                }
+                hasShaked = false;
+            }
+        }
+
+        bool IsMutateButtonPressed(Mutate mutateState) {
+            // Assume IsButtonPressed(Button button) is a method that checks if a button is currently pressed
+            switch (mutateState) {
+                case Mutate.SL:
+                    return IsButtonPressed(Button.SL);
+                case Mutate.SR:
+                    return IsButtonPressed(Button.SR);
+                default:
+                    return false;
+            }
+        }
+
+        void DetectShake() {
+            // Initialize the mappings for accelerometer and gyro sensitivities with corresponding buttons
+            MotionMapping accelShakeSensitivity, accelShakeSensitivityX, accelShakeSensitivityY, accelShakeSensitivityZ;
+            MotionMapping gyroShakeSensitivity, gyroShakeSensitivityX, gyroShakeSensitivityY, gyroShakeSensitivityZ;
+
+            // Configure different pairs and sides
+            if (this.PadId == 0 || this.PadId == 1) { // Pair 1
+                if (this.isLeft) {
+                    // Left Joy-Con of Pair 1
+                    accelShakeSensitivity = new MotionMapping(350.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityX = new MotionMapping(35.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 35.0f);
+                    accelShakeSensitivityY = new MotionMapping(35.0f, Button.X, State.OFF, Mutate.OFF, Button.Y, 35.0f);
+                    accelShakeSensitivityZ = new MotionMapping(35.0f, Button.Y, State.OFF, Mutate.OFF, Button.Y, 35.0f);
+
+                    gyroShakeSensitivity = new MotionMapping(550.0f, Button.STICK2, State.ON, Mutate.SL, Button.Y, 65.0f);
+                    gyroShakeSensitivityX = new MotionMapping(550.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityY = new MotionMapping(550.0f, Button.X, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityZ = new MotionMapping(550.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                } else {
+                    // Right Joy-Con of Pair 1
+                    accelShakeSensitivity = new MotionMapping(35.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityX = new MotionMapping(35.0f, Button.X, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityY = new MotionMapping(35.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityZ = new MotionMapping(35.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+
+                    gyroShakeSensitivity = new MotionMapping(550.0f, Button.STICK2, State.ON, Mutate.SL, Button.Y, 25.0f);
+                    gyroShakeSensitivityX = new MotionMapping(550.0f, Button.X, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityY = new MotionMapping(550.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityZ = new MotionMapping(550.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                }
+            } else { // Pair 2
+                if (this.isLeft) {
+                    // Left Joy-Con of Pair 2
+                    accelShakeSensitivity = new MotionMapping(35.5f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityX = new MotionMapping(35.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityY = new MotionMapping(35.0f, Button.Y, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityZ = new MotionMapping(35.0f, Button.X, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+
+                    gyroShakeSensitivity = new MotionMapping(550.0f, Button.B, State.ON, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityX = new MotionMapping(550.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityY = new MotionMapping(550.0f, Button.Y, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityZ = new MotionMapping(550.0f, Button.X, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                } else {
+                    // Right Joy-Con of Pair 2
+                    accelShakeSensitivity = new MotionMapping(550.5f, Button.X, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityX = new MotionMapping(550.0f, Button.Y, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityY = new MotionMapping(550.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    accelShakeSensitivityZ = new MotionMapping(550.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+
+                    gyroShakeSensitivity = new MotionMapping(550.0f, Button.X, State.ON, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityX = new MotionMapping(550.0f, Button.Y, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityY = new MotionMapping(550.0f, Button.A, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                    gyroShakeSensitivityZ = new MotionMapping(550.0f, Button.B, State.OFF, Mutate.OFF, Button.Y, 65.0f);
+                }
+            }
+
+            long currentShakeTime = shakeTimer.ElapsedMilliseconds;
+
+            // Process each axis for accelerometer and gyro
+            ProcessShakeDetectionIfEnabled(accelShakeSensitivity, GetAccel().LengthSquared(), currentShakeTime);
+            ProcessShakeDetectionIfEnabled(accelShakeSensitivityX, GetAccel().X, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(accelShakeSensitivityY, GetAccel().Y, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(accelShakeSensitivityZ, GetAccel().Z, currentShakeTime);
+
+            Vector3 gyroData = GetGyro();
+            float gyroYandZLengthSquared = (float)(Math.Pow(gyroData.Y, 2) + Math.Pow(gyroData.Z, 2)) / 1000;
+            ProcessShakeDetectionIfEnabled(gyroShakeSensitivity, gyroYandZLengthSquared, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(gyroShakeSensitivityX, GetGyro().X, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(gyroShakeSensitivityY, GetGyro().Y, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(gyroShakeSensitivityZ, GetGyro().Z, currentShakeTime);
+
+
+            // Button release logic
+            if (hasShaked && currentShakeTime >= shakedTime + 10) {
+                // Reset the button states to released for all mapped buttons
+                ResetButtonStates();
+                DebugPrint("Shake completed", DebugType.SHAKE);
+                hasShaked = false;
+            }
+        }
+
+
+        void ResetButtonStates() {
+            // Implement logic to reset all buttons to their "not pressed" state
+            // This could involve iterating over a collection of all mapped buttons and setting their states to false
+        }
+
+        void ProcessShakeDetectionIfEnabled(MotionMapping mapping, float axisValue, long currentShakeTime) {
+            // Check if shake detection should proceed based on the regular state or the mutator state
+            bool proceedWithDetection = mapping.State == State.ON ||
+                                        (mapping.MutateState != Mutate.OFF && IsMutateButtonPressed(mapping.MutateState));
+
+            if (proceedWithDetection) {
+                ProcessShakeDetection(mapping, axisValue, currentShakeTime);
+            }
+        }
+
 
         bool dragToggle = Boolean.Parse(ConfigurationManager.AppSettings["DragToggle"]);
         Dictionary<int, bool> mouse_toggle_btn = new Dictionary<int, bool>();
@@ -891,9 +1064,6 @@ namespace BetterJoyForCemu {
 
         bool swapAB = Boolean.Parse(ConfigurationManager.AppSettings["SwapAB"]);
         bool swapXY = Boolean.Parse(ConfigurationManager.AppSettings["SwapXY"]);
-        float stickScalingFactor = float.Parse(ConfigurationManager.AppSettings["StickScalingFactor"]);
-        float stickScalingFactor2 = float.Parse(ConfigurationManager.AppSettings["StickScalingFactor2"]);
-
         private int ProcessButtonsAndStick(byte[] report_buf) {
             if (report_buf[0] == 0x00) throw new ArgumentException("received undefined report. This is probably a bug");
             if (!isSnes) {
@@ -909,12 +1079,12 @@ namespace BetterJoyForCemu {
 
                 stick_precal[0] = (UInt16)(stick_raw[0] | ((stick_raw[1] & 0xf) << 8));
                 stick_precal[1] = (UInt16)((stick_raw[1] >> 4) | (stick_raw[2] << 4));
-                stick = CenterSticks(stick_precal, stick_cal, deadzone, isLeft ? stickScalingFactor : stickScalingFactor2);
+                stick = CenterSticks(stick_precal, stick_cal, deadzone);
 
                 if (isPro) {
                     stick2_precal[0] = (UInt16)(stick2_raw[0] | ((stick2_raw[1] & 0xf) << 8));
                     stick2_precal[1] = (UInt16)((stick2_raw[1] >> 4) | (stick2_raw[2] << 4));
-                    stick2 = CenterSticks(stick2_precal, stick2_cal, deadzone2, stickScalingFactor2);
+                    stick2 = CenterSticks(stick2_precal, stick2_cal, deadzone2);
                 }
 
                 // Read other Joycon's sticks
@@ -942,15 +1112,15 @@ namespace BetterJoyForCemu {
 
                 buttons[(int)Button.DPAD_DOWN] = (report_buf[3 + (isLeft ? 2 : 0)] & (isLeft ? 0x01 : 0x04)) != 0;
                 buttons[(int)Button.DPAD_RIGHT] = (report_buf[3 + (isLeft ? 2 : 0)] & (isLeft ? 0x04 : 0x08)) != 0;
-                buttons[(int)Button.DPAD_UP] = (report_buf[3 + (isLeft ? 2 : 0)] & (isLeft ? 0x02 : 0x02)) != 0;
+                buttons[(int)Button.DPAD_UP] = (report_buf[5] & 0x02) != 0;
                 buttons[(int)Button.DPAD_LEFT] = (report_buf[3 + (isLeft ? 2 : 0)] & (isLeft ? 0x08 : 0x01)) != 0;
                 buttons[(int)Button.HOME] = ((report_buf[4] & 0x10) != 0);
                 buttons[(int)Button.CAPTURE] = ((report_buf[4] & 0x20) != 0);
                 buttons[(int)Button.MINUS] = ((report_buf[4] & 0x01) != 0);
                 buttons[(int)Button.PLUS] = ((report_buf[4] & 0x02) != 0);
                 buttons[(int)Button.STICK] = ((report_buf[4] & (isLeft ? 0x08 : 0x04)) != 0);
-                buttons[(int)Button.SHOULDER_1] = (report_buf[3 + (isLeft ? 2 : 0)] & 0x40) != 0;
-                buttons[(int)Button.SHOULDER_2] = (report_buf[3 + (isLeft ? 2 : 0)] & 0x80) != 0;
+                buttons[(int)Button.SHOULDER_1] = (report_buf[3 + (isLeft ? 2 : 0)] & 0x40) != 0; // L button
+                buttons[(int)Button.SHOULDER_2] = (report_buf[3 + (isLeft ? 2 : 0)] & 0x80) != 0; // RL button
                 buttons[(int)Button.SR] = (report_buf[3 + (isLeft ? 2 : 0)] & 0x10) != 0;
                 buttons[(int)Button.SL] = (report_buf[3 + (isLeft ? 2 : 0)] & 0x20) != 0;
 
@@ -966,24 +1136,29 @@ namespace BetterJoyForCemu {
                 }
 
                 if (other != null && other != this) {
-                    buttons[(int)(Button.B)] = other.buttons[(int)Button.DPAD_DOWN];
-                    buttons[(int)(Button.A)] = other.buttons[(int)Button.DPAD_RIGHT];
-                    buttons[(int)(Button.X)] = other.buttons[(int)Button.DPAD_UP];
-                    buttons[(int)(Button.Y)] = other.buttons[(int)Button.DPAD_LEFT];
+                    buttons[(int)(Button.B)] = (report_buf[3] & 0x04) != 0;
+                    buttons[(int)(Button.A)] = (report_buf[3] & 0x08) != 0;
+                    buttons[(int)(Button.X)] = (report_buf[3] & 0x02) != 0;
+                    buttons[(int)(Button.Y)] = (report_buf[3] & 0x01) != 0;
 
                     buttons[(int)Button.STICK2] = other.buttons[(int)Button.STICK];
-                    buttons[(int)Button.SHOULDER2_1] = other.buttons[(int)Button.SHOULDER_1];
-                    buttons[(int)Button.SHOULDER2_2] = other.buttons[(int)Button.SHOULDER_2];
+                    buttons[(int)Button.SHOULDER2_1] = other.buttons[(int)Button.SHOULDER_1]; // R button
+                    buttons[(int)Button.SHOULDER2_2] = other.buttons[(int)Button.SHOULDER_2]; // ZR button
+
+
+
                 }
 
                 if (isLeft && other != null && other != this) {
                     buttons[(int)Button.HOME] = other.buttons[(int)Button.HOME];
                     buttons[(int)Button.PLUS] = other.buttons[(int)Button.PLUS];
+
                 }
 
                 if (!isLeft && other != null && other != this) {
                     buttons[(int)Button.MINUS] = other.buttons[(int)Button.MINUS];
                 }
+
 
                 long timestamp = Stopwatch.GetTimestamp();
 
@@ -1111,7 +1286,7 @@ namespace BetterJoyForCemu {
         }
 
         // Should really be called calculating stick data
-        private float[] CenterSticks(UInt16[] vals, ushort[] cal, ushort dz, float scaling_factor) {
+        private float[] CenterSticks(UInt16[] vals, ushort[] cal, ushort dz) {
             ushort[] t = cal;
 
             float[] s = { 0, 0 };
@@ -1121,15 +1296,6 @@ namespace BetterJoyForCemu {
 
             s[0] = dx / (dx > 0 ? t[0] : t[4]);
             s[1] = dy / (dy > 0 ? t[1] : t[5]);
-
-            if (scaling_factor != 1.0f) {
-                s[0] *= scaling_factor;
-                s[1] *= scaling_factor;
-
-                s[0] = Math.Max(Math.Min(s[0], 1.0f), -1.0f);
-                s[1] = Math.Max(Math.Min(s[1], 1.0f), -1.0f);
-            }
-
             return s;
         }
 
@@ -1342,47 +1508,120 @@ namespace BetterJoyForCemu {
             var stick2 = input.stick2;
             var sliderVal = input.sliderVal;
 
+
+
             if (isPro) {
-                output.a = buttons[(int)(!swapAB ? Button.B : Button.A)];
-                output.b = buttons[(int)(!swapAB ? Button.A : Button.B)];
-                output.y = buttons[(int)(!swapXY ? Button.X : Button.Y)];
-                output.x = buttons[(int)(!swapXY ? Button.Y : Button.X)];
 
-                output.dpad_up = buttons[(int)Button.DPAD_UP];
-                output.dpad_down = buttons[(int)Button.DPAD_DOWN];
-                output.dpad_left = buttons[(int)Button.DPAD_LEFT];
-                output.dpad_right = buttons[(int)Button.DPAD_RIGHT];
-
-                output.back = buttons[(int)Button.MINUS];
-                output.start = buttons[(int)Button.PLUS];
-                output.guide = buttons[(int)Button.HOME];
-
-                output.shoulder_left = buttons[(int)Button.SHOULDER_1];
-                output.shoulder_right = buttons[(int)Button.SHOULDER2_1];
-
-                output.thumb_stick_left = buttons[(int)Button.STICK];
-                output.thumb_stick_right = buttons[(int)Button.STICK2];
             } else {
                 if (other != null) { // no need for && other != this
-                    output.a = buttons[(int)(!swapAB ? isLeft ? Button.B : Button.DPAD_DOWN : isLeft ? Button.A : Button.DPAD_RIGHT)];
-                    output.b = buttons[(int)(swapAB ? isLeft ? Button.B : Button.DPAD_DOWN : isLeft ? Button.A : Button.DPAD_RIGHT)];
-                    output.y = buttons[(int)(!swapXY ? isLeft ? Button.X : Button.DPAD_UP : isLeft ? Button.Y : Button.DPAD_LEFT)];
-                    output.x = buttons[(int)(swapXY ? isLeft ? Button.X : Button.DPAD_UP : isLeft ? Button.Y : Button.DPAD_LEFT)];
 
-                    output.dpad_up = buttons[(int)(isLeft ? Button.DPAD_UP : Button.X)];
-                    output.dpad_down = buttons[(int)(isLeft ? Button.DPAD_DOWN : Button.B)];
-                    output.dpad_left = buttons[(int)(isLeft ? Button.DPAD_LEFT : Button.Y)];
-                    output.dpad_right = buttons[(int)(isLeft ? Button.DPAD_RIGHT : Button.A)];
+                    // MAP SL AND SR BUTTONS TO OTHER BUTTONS HERE! (For instance if you map the A button to SRO, pressing the SR button on the right joy-con will activate the A button)
+                    // Change the last part of the code to .OFF .SL .SR .SLO or .SRO. and make sure to close it with the ; symbol
+                    // The left and right trigger cannot be mapped from here and requires you to scroll down a bit more.
 
-                    output.back = buttons[(int)Button.MINUS];
-                    output.start = buttons[(int)Button.PLUS];
-                    output.guide = buttons[(int)Button.HOME];
+                    ButtonFunctionality aFunctionality = ButtonFunctionality.OFF; // B BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality bFunctionality = ButtonFunctionality.OFF; // A BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality yFunctionality = ButtonFunctionality.OFF; // X BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality xFunctionality = ButtonFunctionality.OFF; // Y BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
 
-                    output.shoulder_left = buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER2_1)];
-                    output.shoulder_right = buttons[(int)(isLeft ? Button.SHOULDER2_1 : Button.SHOULDER_1)];
+                    ButtonFunctionality dpadUpFunctionality = ButtonFunctionality.OFF; // DPAD UP, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality dpadDownFunctionality = ButtonFunctionality.OFF; // DPAD DOWN, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality dpadLeftFunctionality = ButtonFunctionality.OFF; // DPAD LEFT, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality dpadRightFunctionality = ButtonFunctionality.OFF; // DPAD RIGHT, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
 
-                    output.thumb_stick_left = buttons[(int)(isLeft ? Button.STICK : Button.STICK2)];
-                    output.thumb_stick_right = buttons[(int)(isLeft ? Button.STICK2 : Button.STICK)];
+                    ButtonFunctionality backFunctionality = ButtonFunctionality.OFF; // MINUS BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality startFunctionality = ButtonFunctionality.OFF; // PLUS BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality guideFunctionality = ButtonFunctionality.OFF; // GUIDE??? BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+
+                    ButtonFunctionality shoulderLeftFunctionality = ButtonFunctionality.OFF; // L BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality shoulderRightFunctionality = ButtonFunctionality.OFF; // R BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+
+                    ButtonFunctionality thumbStickLeftFunctionality = ButtonFunctionality.OFF; // LEFT STICK BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+                    ButtonFunctionality thumbStickRightFunctionality = ButtonFunctionality.OFF; // RIGHT STICK BUTTON, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF; to disable
+
+
+                    output.a = buttons[(int)(!swapAB ? Button.B : Button.A)] || other.buttons[(int)Button.B] ||
+                               (aFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                                aFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                                aFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] :
+                                aFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] : false);
+
+                    output.b = buttons[(int)(!swapAB ? Button.A : Button.B)] || other.buttons[(int)Button.A] ||
+                               (bFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                                bFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                                bFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] :
+                                bFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] : false);
+
+                    output.y = buttons[(int)(!swapXY ? Button.X : Button.Y)] || other.buttons[(int)Button.X] ||
+                               (yFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                                yFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                                yFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] :
+                                yFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] : false);
+
+                    output.x = buttons[(int)(!swapXY ? Button.Y : Button.X)] || other.buttons[(int)Button.Y] ||
+                               (xFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                                xFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                                xFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] :
+                                xFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] : false);
+
+                    output.dpad_up = buttons[(int)Button.DPAD_UP] ||
+                        (dpadUpFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         dpadUpFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         dpadUpFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         dpadUpFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+                    output.dpad_down = buttons[(int)Button.DPAD_DOWN] ||
+                        (dpadDownFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         dpadDownFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         dpadDownFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         dpadDownFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+                    output.dpad_left = buttons[(int)Button.DPAD_LEFT] ||
+                        (dpadLeftFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         dpadLeftFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         dpadLeftFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         dpadLeftFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+                    output.dpad_right = buttons[(int)Button.DPAD_RIGHT] ||
+                        (dpadRightFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         dpadRightFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         dpadRightFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         dpadRightFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+
+                    output.back = buttons[(int)Button.MINUS] || other.buttons[(int)Button.MINUS] ||
+                        (backFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         backFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         backFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         backFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+                    output.start = buttons[(int)Button.PLUS] ||
+                        (startFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         startFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         startFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         startFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+                    output.guide = buttons[(int)Button.HOME] ||
+                        (guideFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         guideFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         guideFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         guideFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+
+                    output.shoulder_left = buttons[(int)Button.SHOULDER_1] || other.buttons[(int)Button.SHOULDER2_1] ||
+                        (shoulderLeftFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         shoulderLeftFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         shoulderLeftFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         shoulderLeftFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);     //L button
+                    output.shoulder_right = buttons[(int)Button.SHOULDER2_1] ||
+                        (shoulderRightFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         shoulderRightFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         shoulderRightFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         shoulderRightFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);  //R button
+
+                    output.thumb_stick_left = buttons[(int)Button.STICK] || other.buttons[(int)Button.STICK2] ||
+                        (thumbStickLeftFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         thumbStickLeftFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         thumbStickLeftFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         thumbStickLeftFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
+                    output.thumb_stick_right = buttons[(int)Button.STICK2] ||
+                        (thumbStickRightFunctionality == ButtonFunctionality.SL ? buttons[(int)Button.SL] :
+                         thumbStickRightFunctionality == ButtonFunctionality.SR ? buttons[(int)Button.SR] :
+                         thumbStickRightFunctionality == ButtonFunctionality.SLO ? other.buttons[(int)Button.SL] :
+                         thumbStickRightFunctionality == ButtonFunctionality.SRO ? other.buttons[(int)Button.SR] : false);
                 } else { // single joycon mode
                     output.a = buttons[(int)(!swapAB ? isLeft ? Button.DPAD_LEFT : Button.DPAD_RIGHT : isLeft ? Button.DPAD_DOWN : Button.DPAD_UP)];
                     output.b = buttons[(int)(swapAB ? isLeft ? Button.DPAD_LEFT : Button.DPAD_RIGHT : isLeft ? Button.DPAD_DOWN : Button.DPAD_UP)];
@@ -1415,12 +1654,27 @@ namespace BetterJoyForCemu {
                     output.axis_left_x = CastStickValue((isLeft ? -1 : 1) * stick[1]);
                 }
             }
+            // MAP SL AND SR BUTTONS TO THE TRIGGER BUTTONS HERE!
+            // Change the last part of the code to .OFF .SL .SR .SLO or .SRO. and make sure to close it with the ; symbol
+            ButtonFunctionality triggerLeftFunctionality = ButtonFunctionality.OFF; // // L TRIGGER, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF to disable
+            ButtonFunctionality triggerRightFunctionality = ButtonFunctionality.OFF; // // R TRIGGER, change to SR; or SL; for L joy-con, SRO; or SLO; for R joy-con or OFF to disable
 
             if (other != null || isPro) {
                 byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
                 byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
-                output.trigger_left = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)] ? lval : 0);
-                output.trigger_right = (byte)(buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)] ? rval : 0);
+                output.trigger_left = (byte)(
+                    (buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_2)] || other.buttons[(int)Button.SHOULDER2_2] ? lval :
+                    triggerLeftFunctionality == ButtonFunctionality.SL && buttons[(int)Button.SL] ? lval :
+                    triggerLeftFunctionality == ButtonFunctionality.SR && buttons[(int)Button.SR] ? lval :
+                    triggerLeftFunctionality == ButtonFunctionality.SLO && other != null && other.buttons[(int)Button.SL] ? lval :
+                    triggerLeftFunctionality == ButtonFunctionality.SRO && other != null && other.buttons[(int)Button.SR] ? lval : 0)); // ZL button
+
+                output.trigger_right = (byte)(
+                    (buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)] ? rval :
+                    triggerRightFunctionality == ButtonFunctionality.SL && buttons[(int)Button.SL] ? rval :
+                    triggerRightFunctionality == ButtonFunctionality.SR && buttons[(int)Button.SR] ? rval :
+                    triggerRightFunctionality == ButtonFunctionality.SLO && other != null && other.buttons[(int)Button.SL] ? rval :
+                    triggerRightFunctionality == ButtonFunctionality.SRO && other != null && other.buttons[(int)Button.SR] ? rval : 0)); // ZR button
             } else {
                 output.trigger_left = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_1)] ? Byte.MaxValue : 0);
                 output.trigger_right = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER_2)] ? Byte.MaxValue : 0);
