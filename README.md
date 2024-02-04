@@ -2,14 +2,14 @@
   <img src="title.png">
 </p>
 
-# BetterJoy: Motion Control Edition
+# BetterJoy: Motion Control Edition (*page under construction*)
 Uses the BetterJoy framework to use Joy-Cons for motion control inputs in any game that accepts an Xbox 360 controller. Your Joy-Con pair will work as an Xbox 360 controller, with the addition of being able to press buttons by moving the Joy-Cons.
 
 Features:
 
-* Use slashing or punching motions to activate buttons
-* Set different buttons to left and right Joy-Con motions
-* Use horizontal slashes to trigger the light attack button and use vertical slashes to trigger the heavy attack button
+* Use swiping or punching motions to activate buttons
+* Set different buttons to left Joy-Con and right Joy-Con motions
+* Want to map horizontal swipes to light attacks and vertical swipes to heavy attacks? You can!
 * Map the SL and SR buttons to motion functions or buttons
 
 This adaption of BetterJoy is entirely focused on motion controls with Joy-Cons. Other features that are not related to using Joy-Cons as an Xbox 360 controller may have been broken and other controllers are not supported/tested.
