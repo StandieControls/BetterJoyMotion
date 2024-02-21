@@ -70,6 +70,8 @@ The future of the project also greatly depends on the compatibility of new super
 
 # Building
 
+**Note: My version is identical to the latest official BetterJoy, except for changes to joycon.cs and App.config**
+
 ## Visual Studio (IDE)
 
 1. If you didn't already, install **Visual Studio Community 2019** via
