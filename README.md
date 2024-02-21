@@ -2,49 +2,65 @@
   <img src="title.png">
 </p>
 
-# BetterJoy: Motion Control Edition (*page under construction*)
-Uses the BetterJoy framework to use Joy-Cons for motion control inputs in any game that accepts an Xbox 360 controller. Your Joy-Con pair will work as an Xbox 360 controller, with the addition of being able to press buttons by moving the Joy-Cons.
+# BetterJoy: Motion Control Edition
+Your Joy-Con pair will work as an Xbox 360 controller, with the addition of being able to press buttons by moving the Joy-Cons.
 
-Features:
+**Features:**
 
-* Use swiping or punching motions to activate buttons
-* Set different buttons to left Joy-Con and right Joy-Con motions
-* Want to map horizontal swipes to light attacks and vertical swipes to heavy attacks? You can!
-* Map the SL and SR buttons to motion functions or buttons
+* Use left and right joy-con motions to activate buttons
+* Want to map horizontal swipes to light attacks, vertical swipes to heavy attacks and forward thrusts to special attacks? You can!
+* Use SL or SR to modify the motion control behavior, or map them to buttons directly
+* Use an optional rumble setting to activate rumble whenever a motion input is used
+* Unlike BetterJoy, the gyro aiming function is now solely controlled with the right joy-con (while using a pair of Joy-Cons)
 
-This adaption of BetterJoy is entirely focused on motion controls with Joy-Cons. Other features that are not related to using Joy-Cons as an Xbox 360 controller may have been broken and other controllers are not supported/tested.
 
-If anyone would like to donate to the creator of BetterJoy, [you can do so here](https://www.paypal.me/DavidKhachaturov/5). 
+
+Warning: This adaption of BetterJoy is entirely focused on motion controls with Joy-Con pairs. Other features that are not related to using Joy-Con pairs as an Xbox 360 controller may have been broken and other controllers are not supported/tested.
+
+If anyone would like to donate to the original creator of BetterJoy, [you can do so here](https://www.paypal.me/DavidKhachaturov/5). 
 
 # How to use
 1. Install drivers
     1. Read the READMEs (they're there for a reason!)
     1. Run *Drivers/ViGEmBus_Setup_1.16.116.exe*
     1. Restart your computer
-2. Run *BetterJoyForCemu.exe* 
-3. Connect your Joy-Cons. **Always ensure that the right Joy-Con is connected first and the left Joy-Con is second, or the buttons might not work**.
+2. Configure the .config file (preferably with an advanced text editor like Notepad++) or replace its content with one of the presets from the preset folder. Otherwise no motion controls will be mapped
+3. Run *BetterJoyForCemu.exe* **If it crashes, there is likely an issue with your .config file and you should start over with one of the presets**
+4. Connect your Joy-Cons **Always ensure that the right Joy-Con is connected first and the left Joy-Con is second, or there will be button issues**
+5. Test whether your motion controls work in-game, [in your browser](https://hardwaretester.com/gamepad), or by activating the 'rumble on shake' feature in the .config file
 
-
-
-### Screenshot
+### Screenshots
 ![Example](https://user-images.githubusercontent.com/16619943/67919451-bf8e5680-fb76-11e9-995e-7193b87548e1.png)
 
+### Videos
+
+
 # Downloads
-Go to the [Releases tab](https://github.com/Davidobot/BetterJoy/releases/)!
-
-
+Go to the [Releases tab](https://github.com/StandieNL/BetterJoyMotion/releases)!
 
 # More Info
-Check out the [wiki](https://github.com/Davidobot/BetterJoy/wiki)! There, you'll find all sorts of goodness such as the changelog, description of app settings, the FAQ and Problems page, and info on how to make BetterJoy work with Steam *better*.
+Instructions on how to configure the motion controls are within the .config file.
+
+You can check out the out the [wiki](https://github.com/Davidobot/BetterJoy/wiki) for more information about how to use the general version of BetterJoy, which may or may not be useful for using BetterJoyMotion.
+
+BetterJoyMotion succeeds [my previous motion control application](https://github.com/StandieNL/Standies-Motion-Controls), which lacked the thumstick and rumble support that BetterJoy provided.
+
+### The Future of BetterJoyMotion
+This is a passion project of someone who can't code. I only managed to get it working by using ChatGPT and dozens of hours of trial and error. Any help from actual coders would be greatly appreciated. Freelancers are welcome to apply for modest compensation. 
+
+Version 0.8 takes care of all the basic functions and some extras. There are still two major functions I want to add, but they have thus far proved too difficult. I also have various other cool features in mind, but it could take years to accomplish.
+I'm honestly hoping Steam, reWASD or other remapping tools end up implementing their own motion control support so I can retire.
+
+The future of the project also greatly depends on the compatibility of new superior motion controllers (like of the Switch 2), as they might make the regular Joy-Cons obsolete.
 
 # Connecting and Disconnecting the Controller
 ## Bluetooth Mode
  * Hold down the small button (sync) on the top of the controller for 5 seconds - this puts the controller into broadcasting mode.
- * Search for it in your bluetooth settings and pair normally.
+ * Search for it in your bluetooth settings and pair normally. I advise you to pair the right joy-con first for an easier experience with BetterJoyMotion
  * To disconnect the controller - hold the home button (or capture button) down for 2 seconds (or press the sync button). To reconnect - press any button on your controller.
 
 ## USB Mode
- * Plug the controller into your computer.
+ * Plug the controller into your computer. (controllers other than joy-cons are not supported/tested in BetterJoyMotion
  
 ## Disconnecting \[Windows 10]
 1. Go into "Bluetooth and other devices settings"
@@ -63,7 +79,7 @@ Check out the [wiki](https://github.com/Davidobot/BetterJoy/wiki)! There, you'll
 3. Open Visual Studio Community and open the solution file (*BetterJoy.sln*).
 4. Open the NuGet manager via *Tools > NuGet Package Manager > Package Manager Settings*.
 5. You should have a warning mentioning *restoring your packages*. Click on the **Restore** button.
-6. You can now run and build BetterJoy.
+6. You can now run and build BetterJoyMotion.
 
 ## Visual Studio Build Tools (CLI)
 1. Download **Visual Studio Build Tools** via
@@ -91,15 +107,13 @@ The built binaries are located under
 where `PLATFORM` and `CONFIGURATION` are the one provided at build time. 
 
 # Acknowledgements
-A massive thanks goes out to [rajkosto](https://github.com/rajkosto/) for putting up with 17 emails and replying very quickly to my silly queries. The UDP server is also mostly taken from his [ScpToolkit](https://github.com/rajkosto/ScpToolkit) repo.
 
-Also I am very grateful to [mfosse](https://github.com/mfosse/JoyCon-Driver) for pointing me in the right direction and to [Looking-Glass](https://github.com/Looking-Glass/JoyconLib) without whom I would not be able to figure anything out. (being honest here - the joycon code is his)
+All credit goes to:
 
-Many thanks to [nefarius](https://github.com/ViGEm/ViGEmBus) for his ViGEm project! Apologies and appreciation go out to [epigramx](https://github.com/epigramx), creator of *WiimoteHook*, for giving me the driver idea and for letting me keep using his installation batch script even though I took it without permission. Thanks go out to [MTCKC](https://github.com/MTCKC/ProconXInput) for inspiration and batch files.
+[Davidobot](https://github.com/Davidobot) for creating the fantastic BetterJoy and answering my long-winded questions, as well as everyone who helped create and improve BetterJoy
 
-A last thanks goes out to [dekuNukem](https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering) for his documentation, especially on the SPI calibration data and the IMU sensor notes!
+[tomayac](https://github.com/tomayac) for creating [chrome-dino-webhid](https://github.com/tomayac/chrome-dino-webhid) and helping me understand motion programming a bit better.
 
-Massive *thank you* to **all** code contributors!
+[SuperLouis64](https://github.com/SuperLouis64) for representing the fun of motion controls on [YouTube](https://www.youtube.com/@SuperLouis64).
 
-Icons (modified): "[Switch Pro Controller](https://thenounproject.com/term/nintendo-switch/930119/)", "[
-Switch Detachable Controller Left](https://thenounproject.com/remsing/uploads/?i=930115)", "[Switch Detachable Controller Right](https://thenounproject.com/remsing/uploads/?i=930121)" icons by Chad Remsing from [the Noun Project](http://thenounproject.com/). [Super Nintendo Controller](https://thenounproject.com/themizarkshow/collection/vectogram/?i=193592) icon by Mark Davis from the [the Noun Project](http://thenounproject.com/); icon modified by [Amy Alexander](https://www.linkedin.com/in/-amy-alexander/).
+This code also would not have been possible without ChatGPT.
