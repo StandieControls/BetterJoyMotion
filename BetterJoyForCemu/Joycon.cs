@@ -858,7 +858,7 @@ namespace BetterJoyForCemu {
                     accelShakeSensitivityZ = ConfigHelper.GetMotionMapping("Pair2RightAccelSensitivityZ");
 
                     gyroShakeSensitivity = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivity");
-                    gyroShakeSensitivityX = ConfigHelper.GetMotionMapping("Pai21RightGyroSensitivityX");
+                    gyroShakeSensitivityX = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityX");
                     gyroShakeSensitivityY = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityY");
                     gyroShakeSensitivityZ = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityZ");
                 }
