@@ -31,7 +31,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 
 ### Screenshots
 ![Example](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307151079-204e1cff-bcb6-4a28-8ae7-0ccef4e3d945.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T211124Z&X-Amz-Expires=300&X-Amz-Signature=08478d0972e694fb7c14dd66f07392d9b560168cf52f341fca4eed79a0b30006&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
-![Joy-Con configuration example](https://gist.github.com/assets/154834381/66396768-dcc4-4f64-b727-935279fd54e6)
+![Joy-Con configuration example](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307152341-66396768-dcc4-4f64-b727-935279fd54e6.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T211803Z&X-Amz-Expires=300&X-Amz-Signature=161fdb98f97ee452dd455bfa99baec53ee0f4fa2db8c353d91478fe1b83384ce&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
 
 ### Videos
 
