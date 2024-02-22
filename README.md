@@ -29,12 +29,11 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 4. Connect your Joy-Cons **Always ensure that the right Joy-Con is connected first and the left Joy-Con is second, or there will be button issues**
 5. Test whether your motion controls work in-game, [in your browser](https://hardwaretester.com/gamepad), or by activating the 'rumble on shake' feature in the .config file
 
-### Screenshots
+### Screenshot (correct order of joy-cons)
 ![Order Example](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307151079-204e1cff-bcb6-4a28-8ae7-0ccef4e3d945.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T211124Z&X-Amz-Expires=300&X-Amz-Signature=08478d0972e694fb7c14dd66f07392d9b560168cf52f341fca4eed79a0b30006&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
-![Joy-Con configuration example](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307153315-393a0c11-64b4-4225-902c-987ccf454a72.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T211929Z&X-Amz-Expires=300&X-Amz-Signature=f9541b41842a81dede927a2949e8ab7469169bd2fdb856690ec0356fdd3b6208&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
 
-### Videos
-
+### Gameplay
+https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307155706-2b93f30d-2dd0-4fd1-9ca5-ed9453f7a4b9.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T212951Z&X-Amz-Expires=300&X-Amz-Signature=553c8b1138ff7477cdbe2ff306e1bbbefe72181e0241c1910e929f77373a3897&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0
 
 # Downloads
 Go to the [Releases tab](https://github.com/StandieNL/BetterJoyMotion/releases)!
