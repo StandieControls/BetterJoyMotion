@@ -30,7 +30,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 5. Test whether your motion controls work in-game, [in your browser](https://hardwaretester.com/gamepad), or by activating the 'rumble on shake' feature in the .config file
 
 ### Screenshots
-![Example](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307150137-f3a5d9e6-d6a7-4b2b-abb5-643f2a1550cf.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T210827Z&X-Amz-Expires=300&X-Amz-Signature=34fdd6dcc5bf708374d7d848bac39bde9a6eaecbf813e69bd8ca7a2cb73abbc1&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
+![Example]([https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307150137-f3a5d9e6-d6a7-4b2b-abb5-643f2a1550cf.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T210827Z&X-Amz-Expires=300&X-Amz-Signature=34fdd6dcc5bf708374d7d848bac39bde9a6eaecbf813e69bd8ca7a2cb73abbc1&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307151079-204e1cff-bcb6-4a28-8ae7-0ccef4e3d945.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T211124Z&X-Amz-Expires=300&X-Amz-Signature=08478d0972e694fb7c14dd66f07392d9b560168cf52f341fca4eed79a0b30006&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
 
 ### Videos
 
