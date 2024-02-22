@@ -112,7 +112,7 @@ where `PLATFORM` and `CONFIGURATION` are the one provided at build time.
 
 All credit goes to:
 
-[Davidobot](https://github.com/Davidobot) for creating the fantastic BetterJoy and answering my long-winded questions, as well as everyone who helped create and improve BetterJoy
+[Davidobot](https://github.com/Davidobot) for creating the fantastic BetterJoy and answering my long-winded questions, as well as [everyone who helped create and improve BetterJoy](https://github.com/Davidobot/BetterJoy/tree/master?tab=readme-ov-file#acknowledgements)
 
 [tomayac](https://github.com/tomayac) for creating [chrome-dino-webhid](https://github.com/tomayac/chrome-dino-webhid) and helping me understand motion programming a bit better.
 
