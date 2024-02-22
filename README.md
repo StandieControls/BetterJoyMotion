@@ -30,7 +30,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 5. Test whether your motion controls work in-game, [in your browser](https://hardwaretester.com/gamepad), or by activating the 'rumble on shake' feature in the .config file
 
 ### Screenshots
-![Example](https://user-images.githubusercontent.com/16619943/67919451-bf8e5680-fb76-11e9-995e-7193b87548e1.png)
+![Example](https://gist.github.com/assets/154834381/f3a5d9e6-d6a7-4b2b-abb5-643f2a1550cf)
 
 ### Videos
 
