@@ -30,7 +30,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 5. Test whether your motion controls work in-game, [in your browser](https://hardwaretester.com/gamepad), or by activating the 'rumble on shake' feature in the .config file
 
 ### Screenshot
-![Order Example](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307151079-204e1cff-bcb6-4a28-8ae7-0ccef4e3d945.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T211124Z&X-Amz-Expires=300&X-Amz-Signature=08478d0972e694fb7c14dd66f07392d9b560168cf52f341fca4eed79a0b30006&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0)
+![image](https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/309468034-e457cd9c-51a6-4c72-8b8e-02699cd06076.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240302%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240302T104959Z&X-Amz-Expires=300&X-Amz-Signature=212ed01ded7f0300943d38b9480ecbbf67461741e08f0d96155424ca12b36713&X-Amz-SignedHeaders=host&actor_id=154834381&key_id=0&repo_id=610292)
 
 *This is the only correct order of joy-cons in BetterJoyMotion*
 
