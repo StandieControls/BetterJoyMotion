@@ -383,8 +383,28 @@ namespace BetterJoyForCemu {
             OFF,
             SL,
             SR,
+            DPAD_DOWN,
+            DPAD_RIGHT,
+            DPAD_LEFT,
+            DPAD_UP,
+            A,
+            B,
+            X,
+            Y,
+            MINUS,
+            HOME,
+            PLUS,
+            CAPTURE,
+            STICK,
+            STICK2,
+            SHOULDER_1,
+            SHOULDER2_1,
+            SHOULDER_2,
+            SHOULDER2_2,
             ON
         }
+
+
         public void getActiveData() {
             this.activeData = form.activeCaliData(serial_number);
         }
@@ -766,7 +786,7 @@ namespace BetterJoyForCemu {
             bool isShaking = directionMatch && Math.Pow(axisValue, 2) >= Math.Pow(sensitivityThreshold, 2);
 
 
-            if ((isShaking) && (currentShakeTime >= shakedTime || shakedTime == 100)) {
+            if ((isShaking) && (currentShakeTime >= shakedTime || shakedTime == 0)) {
                 Button buttonToPress = mapping.Button;
                 if (mapping.MutateState != Mutate.OFF && IsMutateButtonPressed(mapping.MutateState)) {
                     buttonToPress = mapping.MutateButton;
@@ -775,7 +795,7 @@ namespace BetterJoyForCemu {
                 hasShaked = true;
                 buttons[(int)buttonToPress] = true;
 
-            } else if ((!isShaking) && hasShaked && currentShakeTime >= shakedTime + 10) {
+            } else if ((!isShaking) && hasShaked && currentShakeTime >= shakedTime + 9000) {
                 buttons[(int)mapping.Button] = false;
                 if (mapping.MutateState != Mutate.OFF) {
                     buttons[(int)mapping.MutateButton] = false;
@@ -799,8 +819,43 @@ namespace BetterJoyForCemu {
                     return IsButtonPressed(Button.SL);
                 case Mutate.SR:
                     return IsButtonPressed(Button.SR);
+                case Mutate.DPAD_DOWN:
+                    return IsButtonPressed(Button.DPAD_DOWN);
+                case Mutate.DPAD_RIGHT:
+                    return IsButtonPressed(Button.DPAD_RIGHT);
+                case Mutate.DPAD_LEFT:
+                    return IsButtonPressed(Button.DPAD_LEFT);
+                case Mutate.DPAD_UP:
+                    return IsButtonPressed(Button.DPAD_UP);
+                case Mutate.A:
+                    return IsButtonPressed(Button.A);
+                case Mutate.B:
+                    return IsButtonPressed(Button.B);
+                case Mutate.X:
+                    return IsButtonPressed(Button.X);
+                case Mutate.Y:
+                    return IsButtonPressed(Button.Y);
+                case Mutate.MINUS:
+                    return IsButtonPressed(Button.MINUS);
+                case Mutate.HOME:
+                    return IsButtonPressed(Button.HOME);
+                case Mutate.PLUS:
+                    return IsButtonPressed(Button.PLUS);
+                case Mutate.CAPTURE:
+                    return IsButtonPressed(Button.CAPTURE);
+                case Mutate.STICK:
+                    return IsButtonPressed(Button.STICK);
+                case Mutate.STICK2:
+                    return IsButtonPressed(Button.STICK2);
+                case Mutate.SHOULDER_1:
+                    return IsButtonPressed(Button.SHOULDER_1);
+                case Mutate.SHOULDER2_1:
+                    return IsButtonPressed(Button.SHOULDER2_1);
+                case Mutate.SHOULDER_2:
+                    return IsButtonPressed(Button.SHOULDER_2);
+                case Mutate.SHOULDER2_2:
+                    return IsButtonPressed(Button.SHOULDER2_2);
                 case Mutate.ON:
-                    // Return true if either SL or SR button is pressed
                     return IsButtonPressed(Button.SL) || IsButtonPressed(Button.SR);
                 default:
                     return false;
@@ -810,7 +865,7 @@ namespace BetterJoyForCemu {
 
         void DetectShake() {
             MotionMapping accelShakeSensitivity, accelShakeSensitivityX, accelShakeSensitivityY, accelShakeSensitivityZ;
-            MotionMapping gyroShakeSensitivity, gyroShakeSensitivityX, gyroShakeSensitivityY, gyroShakeSensitivityZ;
+            MotionMapping gyroShakeSensitivity, gyroShakeSensitivityX, gyroShakeSensitivityY, gyroShakeSensitivityZ, gyroShakeSensitivityY2, gyroShakeSensitivityZ2;
 
             // Determine which set of motion mappings to use based on PadId and isLeft
             if (this.PadId == 0 || this.PadId == 1) { // Pair 1
@@ -826,6 +881,11 @@ namespace BetterJoyForCemu {
                     gyroShakeSensitivityY = ConfigHelper.GetMotionMapping("Pair1LeftGyroSensitivityY");
                     gyroShakeSensitivityZ = ConfigHelper.GetMotionMapping("Pair1LeftGyroSensitivityZ");
 
+                    gyroShakeSensitivityY2 = ConfigHelper.GetMotionMapping("Pair1LeftGyroSensitivityY2");
+                    gyroShakeSensitivityZ2 = ConfigHelper.GetMotionMapping("Pair1LeftGyroSensitivityZ2");
+
+
+
                 } else {
                     // Right Joy-Con of Pair 1
                     accelShakeSensitivity = ConfigHelper.GetMotionMapping("Pair1RightAccelSensitivity");
@@ -837,6 +897,9 @@ namespace BetterJoyForCemu {
                     gyroShakeSensitivityX = ConfigHelper.GetMotionMapping("Pair1RightGyroSensitivityX");
                     gyroShakeSensitivityY = ConfigHelper.GetMotionMapping("Pair1RightGyroSensitivityY");
                     gyroShakeSensitivityZ = ConfigHelper.GetMotionMapping("Pair1RightGyroSensitivityZ");
+
+                    gyroShakeSensitivityY2 = ConfigHelper.GetMotionMapping("Pair1RightGyroSensitivityY2");
+                    gyroShakeSensitivityZ2 = ConfigHelper.GetMotionMapping("Pair1RightGyroSensitivityZ2");
 
                 }
             } else { // Pair 2
@@ -850,6 +913,9 @@ namespace BetterJoyForCemu {
                     gyroShakeSensitivityX = ConfigHelper.GetMotionMapping("Pair2LeftGyroSensitivityX");
                     gyroShakeSensitivityY = ConfigHelper.GetMotionMapping("Pair2LeftGyroSensitivityY");
                     gyroShakeSensitivityZ = ConfigHelper.GetMotionMapping("Pair2LeftGyroSensitivityZ");
+
+                    gyroShakeSensitivityY2 = ConfigHelper.GetMotionMapping("Pair2LeftGyroSensitivityY2");
+                    gyroShakeSensitivityZ2 = ConfigHelper.GetMotionMapping("Pair2LeftGyroSensitivityZ2");
                 } else {
                     // Right Joy-Con of Pair 2
                     accelShakeSensitivity = ConfigHelper.GetMotionMapping("Pair2RightAccelSensitivity");
@@ -861,6 +927,9 @@ namespace BetterJoyForCemu {
                     gyroShakeSensitivityX = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityX");
                     gyroShakeSensitivityY = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityY");
                     gyroShakeSensitivityZ = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityZ");
+
+                    gyroShakeSensitivityY2 = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityY2");
+                    gyroShakeSensitivityZ2 = ConfigHelper.GetMotionMapping("Pair2RightGyroSensitivityZ2");
                 }
             }
 
@@ -877,16 +946,13 @@ namespace BetterJoyForCemu {
             ProcessShakeDetectionIfEnabled(gyroShakeSensitivityX, GetGyro().X, currentShakeTime);
             ProcessShakeDetectionIfEnabled(gyroShakeSensitivityY, GetGyro().Y, currentShakeTime);
             ProcessShakeDetectionIfEnabled(gyroShakeSensitivityZ, GetGyro().Z, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(gyroShakeSensitivityY2, GetGyro().Y, currentShakeTime);
+            ProcessShakeDetectionIfEnabled(gyroShakeSensitivityZ2, GetGyro().Z, currentShakeTime);
 
 
-            // Repeat for X, Y, Z, gyro mappings
 
-            // Button release logic
-            if (hasShaked && currentShakeTime >= shakedTime + 10) {
-                ResetButtonStates();
-                DebugPrint("Shake completed", DebugType.SHAKE);
-                hasShaked = false;
-            }
+
+
         }
 
 
