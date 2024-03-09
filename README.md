@@ -35,7 +35,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 *This is the only correct order of joy-cons in BetterJoyMotion*
 
 ### Gameplay
-https://github-production-user-asset-6210df.s3.amazonaws.com/154834381/307155706-2b93f30d-2dd0-4fd1-9ca5-ed9453f7a4b9.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240222T212951Z&X-Amz-Expires=300&X-Amz-Signature=553c8b1138ff7477cdbe2ff306e1bbbefe72181e0241c1910e929f77373a3897&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=0
+https://github.com/StandieNL/BetterJoyMotion/assets/154834381/17aea5c6-4c5d-4cc7-b7b8-59b7f6804c47
 
 # Downloads
 Go to the [Releases tab](https://github.com/StandieNL/BetterJoyMotion/releases)!
