@@ -35,7 +35,8 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 *This is the only correct order of joy-cons in BetterJoyMotion*
 
 ## Gameplay
-https://github.com/StandieNL/BetterJoyMotion/assets/154834381/17aea5c6-4c5d-4cc7-b7b8-59b7f6804c47
+
+https://github.com/StandieNL/BetterJoyMotion/assets/154834381/dec9dea1-81fa-4f21-ad13-04f8b5c2ee53
 
 https://github.com/StandieNL/BetterJoyMotion/assets/154834381/fc234733-79b1-414a-86bf-952d3a438e28
 
