@@ -36,9 +36,9 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 
 ## Gameplay
 
-https://github.com/StandieNL/BetterJoyMotion/assets/154834381/dec9dea1-81fa-4f21-ad13-04f8b5c2ee53
+https://github.com/StandieNL/BetterJoyMotion/assets/154834381/d206508b-61f2-4718-bd3b-606269f31aea
 
-https://github.com/StandieNL/BetterJoyMotion/assets/154834381/625144a6-d556-4a12-94c6-44818768b1f7
+https://github.com/StandieNL/BetterJoyMotion/assets/154834381/793cee9f-af21-42ec-a358-d85155bd74d0
 
 https://github.com/StandieNL/BetterJoyMotion/assets/154834381/fc234733-79b1-414a-86bf-952d3a438e28
 
