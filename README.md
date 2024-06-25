@@ -45,6 +45,7 @@ https://github.com/StandieNL/BetterJoyMotion/assets/154834381/fc234733-79b1-414a
 https://github.com/StandieNL/BetterJoyMotion/assets/154834381/f068b00e-cd77-4bcd-a095-e43ad3203cc5
 
 ### [More gameplay can be found on my YouTube page](https://www.youtube.com/@standieNL/videos)
+### [Configurations for specific games can be found on my Nexus Mods page](https://next.nexusmods.com/profile/StandieNL/mods)
 
 # Downloads
 Go to the [Releases tab](https://github.com/StandieNL/BetterJoyMotion/releases)!
