@@ -10,10 +10,6 @@ Your Joy-Con pair will work as an Xbox 360 controller, with the addition of bein
 * Use left and right joy-con motions to activate buttons
 * Want to map horizontal swipes to light attacks, vertical swipes to heavy attacks and forward thrusts to special attacks? You can!
 * Use SL or SR to modify the motion control behavior, or map them to buttons directly
-* Use an optional rumble setting to activate rumble whenever a motion input is used
-* Unlike BetterJoy, the gyro aiming function is now solely controlled with the right joy-con in a pair
-
-
 
 Warning: This adaption of BetterJoy is entirely focused on motion controls with Joy-Con pairs. Other features that are not related to using Joy-Con pairs as an Xbox 360 controller may have been broken and other controllers are not supported/tested.
 
