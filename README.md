@@ -23,7 +23,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 2. Configure the .config file (preferably with an advanced text editor like Notepad++) or replace its content with one of the presets from the preset folder. Otherwise no motion controls will be mapped
 3. Run *BetterJoyForCemu.exe* **If it crashes, there is likely an issue with your .config file and you should start over with one of the presets**
 4. Connect your Joy-Cons **Always ensure that the right Joy-Con is connected first and the left Joy-Con is second, or there will be button issues**
-5. Test whether your motion controls work in-game, [in your browser](https://hardwaretester.com/gamepad), or by activating the 'rumble on shake' feature in the .config file
+5. Test whether your motion controls work in-game or [in your browser](https://hardwaretester.com/gamepad).
 
 ### Screenshot
 <img width="276" alt="correct order joy-cons" src="https://github.com/StandieNL/BetterJoyMotion/assets/154834381/d88842e2-80d1-47d8-9939-e18582e71602">
