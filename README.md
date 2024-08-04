@@ -17,7 +17,7 @@ If anyone would like to donate to the original creator of BetterJoy, [you can do
 
 # How to use
 1. Install drivers
-    1. Read the READMEs (they're there for a reason!)
+    1. Read the READMEs
     1. Run *Drivers/ViGEmBus_Setup_1.16.116.exe*
     1. Restart your computer
 2. Configure the .config file (preferably with an advanced text editor like Notepad++) or replace its content with one of the presets from the preset folder. Otherwise no motion controls will be mapped
