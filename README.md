@@ -127,4 +127,6 @@ All credit goes to:
 
 [SuperLouis64](https://github.com/SuperLouis64) for representing the fun of motion controls on [YouTube](https://www.youtube.com/@SuperLouis64).
 
+Harmonix for creating Super Beat Sports, which planted the seed in my mind to use motion controls in this way.
+
 This code also would not have been possible without ChatGPT.
