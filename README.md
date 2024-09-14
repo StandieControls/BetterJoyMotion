@@ -40,10 +40,9 @@ https://github.com/user-attachments/assets/a459bb95-0b84-40e9-9b11-72207cd9f9fa
 
 https://github.com/StandieNL/BetterJoyMotion/assets/154834381/f068b00e-cd77-4bcd-a095-e43ad3203cc5
 
-https://github.com/StandieNL/BetterJoyMotion/assets/154834381/d206508b-61f2-4718-bd3b-606269f31aea
-
 https://github.com/StandieNL/BetterJoyMotion/assets/154834381/793cee9f-af21-42ec-a358-d85155bd74d0
 
+https://github.com/StandieNL/BetterJoyMotion/assets/154834381/d206508b-61f2-4718-bd3b-606269f31aea
 
 
 ### [More gameplay can be found on my YouTube page](https://www.youtube.com/@standieNL/videos)
