@@ -68,6 +68,8 @@ I'm honestly hoping Steam, reWASD or other remapping tools end up implementing t
 The future of the project also greatly depends on the compatibility of new superior motion controllers (like of the Switch 2), as they might make the regular Joy-Cons obsolete.
 
 # Connecting and Disconnecting the Controller
+WARNING: the bluetooth signal of joy-cons is quite weak and tends to require a strong signal from your computer to compensate for it. Tiny bluetooth adapters and certain internal bluetooth connectors may not be sufficient. It's better to get a bluetooth adapter that has an antenna sticking out of it. BT 4.0 adapters also tend to be more compatible with joy-cons than BT 5.0 adapters.
+
 ## Bluetooth Mode
  * Hold down the small button (sync) on the top of the controller for 5 seconds - this puts the controller into broadcasting mode.
  * Search for it in your bluetooth settings and pair normally. I advise you to pair the right joy-con first for an easier experience with BetterJoyMotion
