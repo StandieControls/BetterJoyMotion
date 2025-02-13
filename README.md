@@ -1,3 +1,7 @@
+## $\color{red}{\textsf{BetterJoyMotion is no longer being updated. I am working on a hugely improved}}$
+## $\color{red}{\textsf{and expanded motion control application that will have a different name and different}}$
+## $\color{red}{\textsf{page. I'll link to it once I have a public release.}}$
+
 <p align="center">
   <img src="title.png">
 </p>
