@@ -1,8 +1,4 @@
-## $\color{red}{\textsf{BetterJoyMotion is no longer being updated.}}$
-## $\color{red}{\textsf{I am working on a hugely improved}}$
-## $\color{red}{\textsf{and expanded motion control application that}}$
-## $\color{red}{\textsf{will have a different name and different}}$
-## $\color{red}{\textsf{page. I'll link to it once I have a public release.}}$
+### BetterJoyMotion is no longer being updated. I am working on a hugely improved and expanded motion control application that will have a different name and different page. I'll link to it once I have a public release.
 
 <p align="center">
   <img src="title.png">
